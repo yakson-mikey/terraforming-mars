@@ -82,6 +82,7 @@ import {IStandardProjectCard} from './cards/IStandardProjectCard';
 import {BoardName} from '../common/boards/BoardName';
 import {SpaceType} from '../common/boards/SpaceType';
 import {ICard} from './cards/ICard';
+import {TelegramAnnouncer} from '../custom/TelegramAnnouncer';
 
 // Can be overridden by tests
 
@@ -424,6 +425,8 @@ export class Game implements IGame, Logger {
     game.log('Generation ${0}', (b) => b.forNewGeneration().number(game.generation));
 
     game.gotoInitialPhase();
+
+    TelegramAnnouncer.getInstance().sendGameStart(game);
 
     return game;
   }
@@ -1140,6 +1143,8 @@ export class Game implements IGame, Logger {
     player.actionsTakenThisRound = 0;
 
     player.takeAction();
+
+    TelegramAnnouncer.getInstance().sendNewPlayerTurn(player.name);
   }
 
   public increaseOxygenLevel(player: IPlayer, increments: -2 | -1 | 1 | 2): void {
@@ -1628,6 +1633,10 @@ export class Game implements IGame, Logger {
     logMessage.playerId = options?.reservedFor?.id;
     this.gameLog.push(logMessage);
     this.gameAge++;
+
+    if (logMessage.playerId === undefined) {
+      TelegramAnnouncer.getInstance().sendLogMessage(logMessage);
+    }
   }
 
   public discardForCost(cardCount: 1 | 2, toPlace: TileType) {

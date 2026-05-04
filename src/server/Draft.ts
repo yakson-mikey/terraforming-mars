@@ -8,6 +8,7 @@ import {SelectCard} from './inputs/SelectCard';
 import {message} from './logs/MessageBuilder';
 import {IPreludeCard} from './cards/prelude/IPreludeCard';
 import {ICeoCard} from './cards/ceos/ICeoCard';
+import {TelegramAnnouncer} from '../custom/TelegramAnnouncer';
 
 export type DraftType = 'none' | 'initial' | 'prelude' | 'ceos' | 'standard';
 
@@ -69,6 +70,8 @@ export abstract class Draft {
     if (save) {
       this.game.save();
     }
+
+    TelegramAnnouncer.getInstance().sendDraft(this.game);
   }
 
   /**
@@ -202,6 +205,7 @@ class StandardDraft extends Draft {
 
   override endRound() {
     this.game.gotoResearchPhase();
+    TelegramAnnouncer.getInstance().sendResearch(this.game);
   }
 }
 
